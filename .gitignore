@@ -1,0 +1,4 @@
+data/*
+*.pyc
+credentials.py*
+settings.py*

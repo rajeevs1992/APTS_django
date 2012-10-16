@@ -1,0 +1,29 @@
+<html>
+	<head>
+	<link rel=stylesheet type=text/css href=/static/main.css>
+	<head>
+	<body>
+	<title>Login</title>
+	<h1 class=login>Academic Project Tracker</h1>
+	<h3>Government Engineering College,Thrissur</h3>
+	<hr>
+	<div class=login>
+	<h3>Sign In</h3>
+	<form action=/ method=post>
+		{% csrf_token %}
+		Username<input class=loginField name=uname type=text><br><br>
+		Password<input class=loginField name=passwd type=password><br><br>
+		<div class=error>
+			{% if  error  %}
+			Username &  Password doesn't match!
+			{% endif %}
+			<br>
+		</div>
+		<input type=submit Value=Login class=button><br><br>
+		</form>
+		<div style=font-size:12px;>
+			<a href=/login/forgot >Can't Access your account?</a>
+		</div>
+	</div>
+	</body>
+</html>

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+	<h2>Associate guides with projects</h2>
+	<form method=post action=/a/user/addguide>
+	{% csrf_token %}
+		Guide Username:
+		<select name=guide>
+		{% for guide in glist %}
+			<option value={{ guide.username }} >{{ guide.username }}</option>
+		{% endfor %}
+		</select><br><br>
+		Select Projects<br><br>
+		<table border=1px class=addguide>
+		{% for proj in plist %}
+			<td><input type=checkbox id={{ proj }} name=proj value={{ proj }}><label for={{ proj }}>{{ proj }}</label></td>
+		{% endfor %}
+		</table>
+		<br>
+		<input type=submit value='Add guides'>
+	</form>
+{% endblock %}

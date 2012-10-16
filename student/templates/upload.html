@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+	{% if dstn == 'p' %}
+		<h2>Upload files to project</h2>
+	{% endif %}
+	{% if dstn == 's' %}
+		<h2>Upload files to personal space</h2>
+	{% endif %}
+	<br><br>
+	<form action=/student/modify/upload method=post enctype="multipart/form-data">
+	{% csrf_token %}
+		Select file:<br><br>
+			<input type=file name=file multiple><br><br>
+		Select Destination:<br><br>
+				<input type=radio value='' name=destn checked>/<br>
+			{% for i in listing %}
+				<input type=radio value={{ i }} name=destn>{{ i }}<br>
+			{% endfor %}
+			<input type=hidden value='{{ mode }}' name=mode>
+			<input type=submit value=Upload>
+	</form>
+{% endblock %}

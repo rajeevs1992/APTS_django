@@ -1,0 +1,25 @@
+<html>
+<link type=text/css rel='stylesheet' href=/static/main.css>
+	<body vlink=blue>
+	<title>{{title}}</title>
+	<h1 align=center>{{title}}</h1>
+	{%for i in links%}
+		<a href= {{i.url}} >
+			<input type=submit class=buttons style=left:{{i.left}} value={{i.value}}>
+		</a>
+	{% endfor %}
+	<div class=content>
+	<div class=error>
+		{{ message }}
+	</div>
+	{% block content %}{% endblock %}
+	</div>
+
+		
+	</body>
+	<div class=footer>
+		(c)Powered by Django.Designed and built by Rajeev S.....
+		<a href=/bugs>Report bugs or drop your valueable feedbacks</a>.......
+	</div>
+		
+</html>

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+	<h2>Delete</h2>
+	<form action=/student/modify/rm method=post>
+	{% csrf_token %}
+	<ul>
+		<li>Directories:</li>
+			<ul>
+				<li><input type=checkbox value='' name=destn>/</li>
+			{% for i in listing %}
+				<li><input type=checkbox value={{ i }} name=destn>{{ i }}</li>
+			{% endfor %}
+			</ul>
+		<li>Files</li>
+			<ul>
+			{% for i in listing2 %}
+				<li><input type=checkbox value={{ i }} name=destn>{{ i }}</li>
+			{% endfor %}
+			</ul>
+	</ul>
+			<input type=hidden value='{{ mode }}' name=mode>
+			<input type=submit value=Delete>
+	</form>
+{% endblock %}
