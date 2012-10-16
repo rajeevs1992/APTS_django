@@ -19,21 +19,52 @@ def is_student(u):
 def upload(request):
 	from django.conf import settings
 	if request.method=='POST':
+		if request.POST['mode'] == 'project':
+			proj=getproj(request.user.username,settings.USERS)
+			target=os.path.join(settings.REPOS,proj)
+			target=os.path.join(target,request.POST['destn']+'/')
+		else:
+			target=os.path.join(settings.STORE,request.user.username+'/')
 		if request.FILES.has_key('file'):
-			destn=request.POST['destn']
-			if request.POST['mode']=='p':
-			else:
-			f=open(os.path.join(request.session['projectName'])),'a')
 			for i in request.FILES.getlist('file'):
-				move_uploaded_file(i,d)
-				if request.POST['mode']=='p':
-					if destn=='':destn='/';
-					message="'%s' Uploaded file '%s' to '%s'\n"%(request.session['uname'],i,destn)
-					f.write(message)
-			f.close()
-			return HttpResponseRedirect('/student/modify/?message=Uploaded files successfully!!')
+				move_uploaded_file(i,target)
+			return HttpResponseRedirect('/home?message=Files Uploaded.')
+		else:
+			return HttpResponseRedirect('/home?message=No Files Selected.')
 	else:
-		return render_to_response('upload.html',)
+		ret={}
+		if request.GET['target']=='project':
+			ret['listing']=getlisting(request.user.username,'project')
+			ret['mode']='project'
+			ret['dstn']='p'
+		else:
+			ret['listing']=getlisting(request.user.username,'store')
+			ret['mode']='store'
+			ret['dstn']='s'
+		if 'message' in request.GET:
+			ret['message']=request.GET['message']
+		return render_to_response('upload.html',ret,context_instance=RequestContext(request))
+def getlisting(uname,mode):
+	from django.conf import settings
+	if mode=='project':
+		proj=getproj(uname,settings.USERS)
+		target=os.path.join(settings.REPOS,proj)
+	else:
+		target=os.path.join(settings.STORE,uname)
+	return listDirectory(target)
+def listDirectory(d):
+	l=[]
+	for dirname, dirnames,filename in os.walk(d):
+		for subdirname in dirnames:
+			if '.git' not in subdirname:
+				l.append(os.path.join(dirname, subdirname)[len(d):])
+	return l
+def getproj(uname,target):
+	target=os.path.join(target,uname)
+	f=open(target)
+	proj=f.readline().strip()
+	f.close()
+	return proj
 @cache_control(no_cache=True, must_revalidate=True,no_store=True)
 def modifyView(request):
 	ret=auth(request)
@@ -71,8 +102,8 @@ def listDirectory(d):
 	l=[]
 	for dirname, dirnames,filename in os.walk(d):
 		for subdirname in dirnames:
-			if '.git' not in subdirname:
-				l.append(os.path.join(dirname, subdirname)[len(d):])
+			if '.git' not in subdirname+dirname:
+				l.append(os.path.join(dirname, subdirname)[len(d)+1:])
 	return l
 
 def move_uploaded_file(f,d):
