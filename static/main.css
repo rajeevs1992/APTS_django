@@ -11,6 +11,10 @@
 			color:#dfe123;
 
 		}
+		div.scrollable
+		{
+			overflow:scroll;
+		}
 		h1
 		{
 			color:#dfe123;

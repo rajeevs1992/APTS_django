@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+	<h1>Current version</h1>
+	<title>Current version</title>
+	Please Select file to view:<br>
+	<ul>
+	{% for i in listing %}
+		<li>
+			<a href=/student/viewfile?flag={{ flag }}&target={{ i }}>{{ i }} </a><br>
+		</li>
+	{% endfor %}
+	</ul>
+{% endblock %}

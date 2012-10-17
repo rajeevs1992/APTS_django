@@ -5,6 +5,7 @@ from django.shortcuts import render_to_response
 import os
 from shutil import rmtree
 from django.contrib.auth.decorators import login_required,user_passes_test
+from django.conf import settings
 
 def is_student(u):
 	l=u.groups.all()
@@ -17,7 +18,6 @@ def is_student(u):
 @user_passes_test(lambda u: is_student(u),login_url='/logout')
 @cache_control(no_cache=True, must_revalidate=True,no_store=True)
 def upload(request):
-	from django.conf import settings
 	if request.method=='POST':
 		if request.POST['mode'] == 'project':
 			proj=getproj(request.user.username,settings.USERS)
@@ -45,7 +45,6 @@ def upload(request):
 			ret['message']=request.GET['message']
 		return render_to_response('upload.html',ret,context_instance=RequestContext(request))
 def getlisting(uname,mode):
-	from django.conf import settings
 	if mode=='project':
 		proj=getproj(uname,settings.USERS)
 		target=os.path.join(settings.REPOS,proj)
@@ -65,39 +64,6 @@ def getproj(uname,target):
 	proj=f.readline().strip()
 	f.close()
 	return proj
-@cache_control(no_cache=True, must_revalidate=True,no_store=True)
-def modifyView(request):
-	ret=auth(request)
-	if ret==1:
-		mode=request.GET['d']
-		d=getpath(request)
-		args={}
-		l=listDirectory(d)
-		args={'listing':l,'mode':mode,
-				'projectName':request.session['projectName'],'links':StudentLinks}
-		if 'message' in request.GET:
-			args['message']=request.GET['message']
-		if request.GET['action']=='upload':
-			args['title']='Upload'
-			return render_to_response('upload.html',args,context_instance=RequestContext(request))
-		elif request.GET['action']=='mkdir':
-			args['title']='Create directory'
-			return render_to_response('mkdir.html',args,context_instance=RequestContext(request))
-		elif request.GET['action']=='rm':
-			l2=[]
-			for dirname, dirnames,filename in os.walk(d):
-				for f in filename:
-					if '.git' not in f:
-						l2.append((os.path.join(dirname,f))[len(d):])
-			args['title']='Delete files or directories'
-			args['listing2']=l2
-			return render_to_response('rm.html',args,context_instance=RequestContext(request))
-		elif request.GET['action']=='view':
-			args['title']='View data'
-			return render_to_response('view.html',args,context_instance=RequestContext(request))
-	else:
-		return render_to_response('login.html',ret,context_instance=RequestContext(request))
-
 def listDirectory(d):
 	l=[]
 	for dirname, dirnames,filename in os.walk(d):
@@ -112,6 +78,41 @@ def move_uploaded_file(f,d):
 		destination.write(chunk)
 		destination.close()
 	return
+def viewproject(request):
+	loc=''
+	ret={}
+	if request.GET['target']=='project':
+		proj=getproj(request.user.username,settings.USERS)
+		loc=os.path.join(settings.REPOS,proj)
+		ret['flag']='project'
+	else:
+		ret['flag']='store'
+		loc=os.path.join(settings.STORE,request.user.username)
+	l=[]
+	chop=len(loc)
+	for dirname, dirnames, filenames in os.walk(loc):
+		for filename in filenames:
+			if '.git' not in dirname+filename:
+				temp=os.path.join(dirname, filename)[chop:]
+				l.append(temp)
+	ret['listing']=l
+	return render_to_response('viewproject.html',ret)
+
+def viewfile(request):
+	loc=''
+	if request.GET['flag']=='project':
+		proj=getproj(request.user.username,settings.USERS)
+		loc=os.path.join(settings.REPOS,proj)
+	else:
+		loc=os.path.join(settings.STORE,request.user.username)
+	loc=loc+'/'
+	target=loc+request.GET['target']
+	print loc
+	print target
+	f=open(target)
+	content=f.read()
+	f.close()
+	return render_to_response('viewfile.html',{'data':content,'filename':request.GET['target']})
 
 def rm(request):
 	ret=auth(request)
@@ -133,27 +134,4 @@ def rm(request):
 		else:
 			return HttpResponseRedirect('/student/modify/modifyView?d=p&action=rm&message=No files selected')
 	
-
-def auth(request):
-	args={'heading':'Govt Engineering College,Thrissur',
-		'subHeading':'The Academic Project Tracker',
-		'destn':'/login/verify/',
-		'error':'Unautorized Access!!Please Login!!'}
-	if 'uname' and 'projectName' and 'level' in request.session:
-		if request.session['level']==3:
-			return 1
-	return args
-
-def getpath(request):
-	d=''
-	if request.method=='GET':
-		mode=request.GET['d']
-	else:
-		mode=request.POST['mode']
-	if mode=='p':
-		d=os.path.join(cur_dir,'../data/repos/%s/%s'%(request.session['projectName'],request.session['projectName']))
-	elif mode=='s':
-		d=os.path.join(cur_dir,'../data/personal_area/%s'%(request.session['uname']))
-	print d
-	return d
 
