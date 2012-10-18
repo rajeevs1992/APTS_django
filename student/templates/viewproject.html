@@ -6,7 +6,7 @@
 	<ul>
 	{% for i in listing %}
 		<li>
-			<a href=/student/viewfile?flag={{ flag }}&target={{ i }}>{{ i }} </a><br>
+			<a href=/student/viewfile?flag={{ flag }}&target={{ i|urlencode }}>{{ i }} </a><br>
 		</li>
 	{% endfor %}
 	</ul>

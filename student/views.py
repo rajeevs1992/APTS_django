@@ -6,6 +6,7 @@ import os
 from shutil import rmtree
 from django.contrib.auth.decorators import login_required,user_passes_test
 from django.conf import settings
+from datetime import datetime
 
 def is_student(u):
 	l=u.groups.all()
@@ -23,11 +24,17 @@ def upload(request):
 			proj=getproj(request.user.username,settings.USERS)
 			target=os.path.join(settings.REPOS,proj)
 			target=os.path.join(target,request.POST['destn']+'/')
+			head=os.path.join(settings.COMMITS,proj+'/head')
 		else:
 			target=os.path.join(settings.STORE,request.user.username+'/')
 		if request.FILES.has_key('file'):
+			dialogue='%s uploaded %s at %s'
+			f=open(head,'a')
+			time=str(datetime.now())
 			for i in request.FILES.getlist('file'):
 				move_uploaded_file(i,target)
+				f.write(dialogue%(request.user.username,str(i),time))
+			f.close()
 			return HttpResponseRedirect('/home?message=Files Uploaded.')
 		else:
 			return HttpResponseRedirect('/home?message=No Files Selected.')
