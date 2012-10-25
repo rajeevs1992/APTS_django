@@ -14,6 +14,37 @@ def is_student(u):
 		if i.name=='student':
 			return True
 	return False
+@login_required
+@user_passes_test(lambda u: is_student(u),login_url='/logout')
+@cache_control(no_cache=True, must_revalidate=True,no_store=True)
+def mkdir(request):
+	if request.method=='POST':
+		target=''
+		if request.POST['mode'] == 'project':
+			proj=getproj(request.user.username,settings.USERS)
+			target=os.path.join(settings.REPOS,proj)
+			target=os.path.join(target,request.POST['destn']+'/')
+		else:
+			target=os.path.join(settings.STORE,request.user.username+'/')
+		target=target+request.POST['dirname']
+		try:
+			os.mkdir(target)
+		except OSError:
+			pass
+		return HttpResponseRedirect('/home?message=Directory Created.')
+	else:
+		ret={}
+		if request.GET['target']=='project':
+			ret['listing']=getlisting(request.user.username,'project')
+			ret['mode']='project'
+			ret['dstn']='p'
+		else:
+			ret['listing']=getlisting(request.user.username,'store')
+			ret['mode']='store'
+			ret['dstn']='s'
+		if 'message' in request.GET:
+			ret['message']=request.GET['message']
+		return render_to_response('mkdir.html',ret,context_instance=RequestContext(request))
 
 @login_required
 @user_passes_test(lambda u: is_student(u),login_url='/logout')
@@ -27,6 +58,8 @@ def upload(request):
 			head=os.path.join(settings.COMMITS,proj+'/head')
 		else:
 			target=os.path.join(settings.STORE,request.user.username+'/')
+			target=os.path.join(target,request.POST['destn']+'/')
+			head='/tmp/aptstemp'
 		if request.FILES.has_key('file'):
 			dialogue='%s uploaded %s at %s'
 			f=open(head,'a')

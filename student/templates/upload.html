@@ -14,7 +14,11 @@
 			<input type=file name=file multiple><br><br>
 		Select Destination:<br>
 			{% if dstn == 's' %}
+				<a href=/student/mkdir?target=store>Create New Directory</a><br>
 				<input type=radio name=destn id=0 value=''><label for=0>/</label><br>
+			{% endif %}
+			{% if dstn == 'p' %}
+				<a href=/student/mkdir?target=project>Create Directory</a><br>
 			{% endif %}
 			{% for i in listing %}
 				<input type=radio value={{ i }} id={{ i }} name=destn><label for={{ i }}> {{ i }}</label><br>
