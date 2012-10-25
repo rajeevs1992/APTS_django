@@ -55,8 +55,8 @@ def commit(request):
 			f.close()
 			notifyCommit(request.POST['proj'])
 		else:
-			return HttpResponseRedirect('/home?message="Nothing to commit"')
-		return HttpResponseRedirect('/home?message="Commited Successfully"')
+			return HttpResponseRedirect('/home?message=Nothing to commit')
+		return HttpResponseRedirect('/home?message=Commited Successfully')
 def notifyCommit(proj):
 	from django.conf import settings
 	from mails import Commit
@@ -65,7 +65,6 @@ def notifyCommit(proj):
 	f=open(proj_conf)
 	f.readline()
 	for i in f.readlines():
-		print i
 		u=User.objects.filter(username=i.strip())[0]
 		u.email_user("Commit notification",Commit%(proj))
 	f.close()
