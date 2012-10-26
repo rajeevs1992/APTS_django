@@ -3,7 +3,6 @@ from django.template import RequestContext
 from django.views.decorators.cache import cache_control
 from django.shortcuts import render_to_response
 import os
-from shutil import rmtree
 from django.contrib.auth.decorators import login_required,user_passes_test
 from django.conf import settings
 from datetime import datetime
@@ -59,7 +58,7 @@ def upload(request):
 		else:
 			target=os.path.join(settings.STORE,request.user.username+'/')
 			target=os.path.join(target,request.POST['destn']+'/')
-			head='/tmp/aptstemp'
+			head='/dev/null'
 		if request.FILES.has_key('file'):
 			dialogue='%s uploaded %s at %s'
 			f=open(head,'a')
@@ -153,25 +152,50 @@ def viewfile(request):
 	content=f.read()
 	f.close()
 	return render_to_response('viewfile.html',{'data':content,'filename':request.GET['target']})
-
+@login_required
+@user_passes_test(lambda u: is_student(u),login_url='/logout')
+@cache_control(no_cache=True, must_revalidate=True,no_store=True)
 def rm(request):
-	ret=auth(request)
-	if ret == 1:
-		destn=request.POST.getlist('destn')
-		if destn:
-			for i in destn:
-				path=getpath(request)
-				path=os.path.join(path,i)
-				print path
-			#	try:
-			#	rmtree(path)
-			#	except OSError:
-			#		try:
-			#			os.remove(path)
-			#		except OSError:
-			#			return HttpResponseRedirect('/student/modify/modifyView?d=p&action=rm&message=Delete Failed!')
-			return HttpResponseRedirect('/student/modify/modifyView?d=p&action=rm&message=Deletion Complete!!')
+	if request.method=='POST':
+		from shutil import rmtree
+		if request.POST['mode'] == 'project':
+			proj=getproj(request.user.username,settings.USERS)
+			target=os.path.join(settings.REPOS,proj)
+			target=os.path.join(target,request.POST['destn']+'/')
+			head=os.path.join(settings.COMMITS,proj+'/head')
 		else:
-			return HttpResponseRedirect('/student/modify/modifyView?d=p&action=rm&message=No files selected')
-	
-
+			target=os.path.join(settings.STORE,request.user.username+'/')
+			target=os.path.join(target,request.POST['destn']+'/')
+			head='/dev/null'
+		if request.POST.has_key('file'):
+			dialogue='%s deleted %s at %s'
+			f=open(head,'a')
+			time=str(datetime.now())
+			for i in request.POST.getlist('file'):
+				try:
+					rmtree(target+i)
+				except OSError:
+					try:
+						os.rm(target+i)
+					except OSError:
+						pass
+				f.write(dialogue%(request.user.username,str(i),time))
+			f.close()
+			return HttpResponseRedirect('/home?message=Files Deleted.')
+		else:
+			return HttpResponseRedirect('/home?message=No Files Selected.')
+	else:
+		ret={}
+		if request.GET['target']=='project':
+			ret['listing']=getlisting(request.user.username,'project')[1:]
+			ret['listing2']=getlisting_files(request.user.username,'project')[1:]
+			ret['mode']='project'
+			ret['dstn']='p'
+		else:
+			ret['listing']=getlisting(request.user.username,'store')
+			ret['listing2']=getlisting_files(request.user.username,'store')
+			ret['mode']='store'
+			ret['dstn']='s'
+		if 'message' in request.GET:
+			ret['message']=request.GET['message']
+		return render_to_response('rm.html',ret,context_instance=RequestContext(request))

@@ -1,24 +1,19 @@
 {% extends 'base.html' %}
 {% block content %}
-	<h2>Delete</h2>
-	<form action=/student/modify/rm method=post>
+	<h2>Delete files/Directories</h2>
+	<br><br>
+	<div class=scrollable>
+	<form action=/student/delete method=post enctype="multipart/form-data">
 	{% csrf_token %}
-	<ul>
-		<li>Directories:</li>
-			<ul>
-				<li><input type=checkbox value='' name=destn>/</li>
+		Select File to delete:<br>
+			{% if dstn == 's' %}
+				<input type=checkbox name=destn id=0 value=''><label for=0>/</label><br>
+			{% endif %}
 			{% for i in listing %}
-				<li><input type=checkbox value={{ i }} name=destn>{{ i }}</li>
+				<input type=checkbox value={{ i }} id={{ i }} name=destn><label for={{ i }}> {{ i }}</label><br>
 			{% endfor %}
-			</ul>
-		<li>Files</li>
-			<ul>
-			{% for i in listing2 %}
-				<li><input type=checkbox value={{ i }} name=destn>{{ i }}</li>
-			{% endfor %}
-			</ul>
-	</ul>
 			<input type=hidden value='{{ mode }}' name=mode>
 			<input type=submit value=Delete>
 	</form>
+	</div>
 {% endblock %}
