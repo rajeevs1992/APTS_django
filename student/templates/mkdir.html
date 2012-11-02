@@ -3,7 +3,7 @@
 	<h2>Create Directory</h2>
 	<br><br>
 	<div class=scrollable>
-	<form action=/student/mkdir method=post enctype="multipart/form-data">
+	<form action=/student/mkdir method=post>
 	{% csrf_token %}
 		Directory Name:<br><br>
 			<input type=text name=dirname><br><br>

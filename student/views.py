@@ -22,7 +22,7 @@ def mkdir(request):
 		if request.POST['mode'] == 'project':
 			proj=getproj(request.user.username,settings.USERS)
 			target=os.path.join(settings.REPOS,proj)
-			target=os.path.join(target,request.POST['destn']+'/')
+			target=target+request.POST['destn']+'/'
 		else:
 			target=os.path.join(settings.STORE,request.user.username+'/')
 		target=target+request.POST['dirname']
@@ -53,11 +53,11 @@ def upload(request):
 		if request.POST['mode'] == 'project':
 			proj=getproj(request.user.username,settings.USERS)
 			target=os.path.join(settings.REPOS,proj)
-			target=os.path.join(target,request.POST['destn']+'/')
+			target=target+request.POST['destn']+'/'
 			head=os.path.join(settings.COMMITS,proj+'/head')
 		else:
 			target=os.path.join(settings.STORE,request.user.username+'/')
-			target=os.path.join(target,request.POST['destn']+'/')
+			target=target+request.POST['destn']+'/'
 			head='/dev/null'
 		if request.FILES.has_key('file'):
 			dialogue='%s uploaded %s at %s'
@@ -94,7 +94,7 @@ def listDirectory(d):
 	l=[]
 	for dirname, dirnames,filename in os.walk(d):
 		for subdirname in dirnames:
-			if '.git' not in subdirname:
+			if '.git' not in subdirname+dirname:
 				l.append(os.path.join(dirname, subdirname)[len(d):])
 	return l
 def getproj(uname,target):
@@ -103,14 +103,6 @@ def getproj(uname,target):
 	proj=f.readline().strip()
 	f.close()
 	return proj
-def listDirectory(d):
-	l=[]
-	for dirname, dirnames,filename in os.walk(d):
-		for subdirname in dirnames:
-			if '.git' not in subdirname+dirname:
-				l.append(os.path.join(dirname, subdirname)[len(d)+1:])
-	return l
-
 def move_uploaded_file(f,d):
 	destination = open(d+f.name,'wb+')
 	for chunk in f.chunks():
@@ -161,22 +153,22 @@ def rm(request):
 		if request.POST['mode'] == 'project':
 			proj=getproj(request.user.username,settings.USERS)
 			target=os.path.join(settings.REPOS,proj)
-			target=os.path.join(target,request.POST['destn']+'/')
 			head=os.path.join(settings.COMMITS,proj+'/head')
 		else:
 			target=os.path.join(settings.STORE,request.user.username+'/')
-			target=os.path.join(target,request.POST['destn']+'/')
+			target=target+request.POST['destn']+'/'
 			head='/dev/null'
-		if request.POST.has_key('file'):
+		if request.POST.has_key('destn'):
 			dialogue='%s deleted %s at %s'
 			f=open(head,'a')
 			time=str(datetime.now())
-			for i in request.POST.getlist('file'):
+			for i in request.POST.getlist('destn'):
+				print target+i
 				try:
 					rmtree(target+i)
 				except OSError:
 					try:
-						os.rm(target+i)
+						os.remove(target+i)
 					except OSError:
 						pass
 				f.write(dialogue%(request.user.username,str(i),time))
@@ -188,7 +180,7 @@ def rm(request):
 		ret={}
 		if request.GET['target']=='project':
 			ret['listing']=getlisting(request.user.username,'project')[1:]
-			ret['listing2']=getlisting_files(request.user.username,'project')[1:]
+			ret['listing2']=getlisting_files(request.user.username,'project')
 			ret['mode']='project'
 			ret['dstn']='p'
 		else:
@@ -199,3 +191,21 @@ def rm(request):
 		if 'message' in request.GET:
 			ret['message']=request.GET['message']
 		return render_to_response('rm.html',ret,context_instance=RequestContext(request))
+def getlisting_files(uname,target):
+	l=[]
+	d=''
+	p=''
+	if target=='project':
+		p=getproj(uname,settings.USERS)
+		d=os.path.join(settings.REPOS,p)
+		d=d+'/'+p
+	else:
+		d=os.path.join(settings.STORE,uname)
+	for dirname, dirnames,filename in os.walk(d):
+		for files in filename:
+			if '.git' not in files+dirname:
+				t=os.path.join(dirname,files)[len(d):]
+				if target=='project':
+					t='/'+p+t
+				l.append(t)
+	return l
