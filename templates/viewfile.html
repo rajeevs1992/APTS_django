@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+	<h1>{{ filename }}</h1>
+	<textarea readonly rows=25 cols=100 style=overflow:scroll>
+		{{ data }}
+	</textarea>
+	<a href='/download?flag={{ flag }}&target={{ filename }}'>Download file</a>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<h2>Modify the current version</h2>
+	<ul>
+		<li><h3>{{ projectName }}</h3></li>
+		<ul>
+			<li><a href='/student/modify/modifyView?d=p&action=upload'>Upload files</a></li>
+			<li><a href='/student/modify/modifyView?d=p&action=mkdir'>Create new directory</a></li>
+			<li><a href='/student/modify/modifyView?d=p&action=rm'>Delete files or directories</a></li><br>
+			<li><a href='/student/modify/modifyView?d=p&action=view'>View current version</a></li>
+		</ul>
+		<li><h3>Personal Space</h3></li>
+		<ul>
+			<li><a href='/student/modify/modifyView?d=s&action=upload'>Upload files</a></li>
+			<li><a href='/student/modify/modifyView?d=s&action=mkdir'>Create new directory</a></li>
+			<li><a href='/student/modify/modifyView?d=s&action=rm'>Delete files or directories</a></li><br>
+			<li><a href='/student/modify/modifyView?d=s&action=view'>View your Space</a></li>
+		</ul>
+	</ul>
+
+{% endblock %}
+

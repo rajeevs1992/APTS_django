@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+	<h2>Create Directory</h2>
+	<br><br>
+	<div class=scrollable>
+	<form action=/student/mkdir method=post>
+	{% csrf_token %}
+		Directory Name:<br><br>
+			<input type=text name=dirname><br><br>
+		Select Destination:<br>
+			{% if dstn == 's' %}
+				<input type=radio name=destn id=0 value=''><label for=0>/</label><br>
+			{% endif %}
+			{% for i in listing %}
+				<input type=radio value={{ i }} id={{ i }} name=destn><label for={{ i }}> {{ i }}</label><br>
+			{% endfor %}
+			<input type=hidden value='{{ mode }}' name=mode>
+			<input type=submit value='Create Directory'>
+	</form>
+	</div>
+{% endblock %}

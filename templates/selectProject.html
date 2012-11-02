@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+	<script language=javascript>
+		function submit()
+		{
+			var f=document.getElementById('form');
+			f.submit();
+		}
+	</script>
+	<title>Select Project</title>
+	<h1>Select Project</h1>
+	<form action=/guide/selectproject method=post id=form>
+	{% csrf_token %}
+		Select Project:
+		<select name=proj onchange=submit()>
+			<option></option>
+		{% for i in proj %}
+			<option value={{ i }}>{{ i }}</option>
+		{% endfor %}
+		</select>
+		<input type=hidden value={{ next }} name=next>
+	</form>
+{% endblock %}
+		

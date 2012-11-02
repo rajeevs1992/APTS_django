@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+	<h2>Delete files/Directories</h2>
+	<br><br>
+	<div class=scrollable>
+	<form action=/student/delete method=post>
+	{% csrf_token %}
+		Select Directory to delete:<br>
+			{% for i in listing %}
+				<input type=checkbox value={{ i }} id={{ i }} name=destn><label for={{ i }}> {{ i }}</label><br>
+			{% endfor %}
+		Select File to delete:<br>
+			{% for i in listing2 %}
+				<input type=checkbox value={{ i }} id={{ i }} name=destn><label for={{ i }}> {{ i }}</label><br>
+			{% endfor %}
+			<input type=hidden value='{{ mode }}' name=mode>
+			<input type=submit value=Delete>
+	</form>
+	</div>
+{% endblock %}

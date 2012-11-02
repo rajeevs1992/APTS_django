@@ -134,19 +134,22 @@ def viewproject(request):
 
 def viewfile(request):
 	loc=''
+	ret={}
 	if request.GET['flag']=='project':
 		proj=getproj(request.user.username,settings.USERS)
 		loc=os.path.join(settings.REPOS,proj)
+		ret['flag']='project'
 	else:
 		loc=os.path.join(settings.STORE,request.user.username)
+		ret['flag']='store'
 	loc=loc+'/'
 	target=loc+request.GET['target']
-	print loc
-	print target
 	f=open(target)
 	content=f.read()
 	f.close()
-	return render_to_response('viewfile.html',{'data':content,'filename':request.GET['target']})
+	ret['data']=content
+	ret['filename']=request.GET['target']
+	return render_to_response('viewfile.html',ret)
 @login_required
 @user_passes_test(lambda u: is_student(u),login_url='/logout')
 @cache_control(no_cache=True, must_revalidate=True,no_store=True)
@@ -213,19 +216,27 @@ def getlisting_files(uname,target):
 @login_required
 @user_passes_test(lambda u: is_student(u),login_url='/logout')
 @cache_control(no_cache=True, must_revalidate=True,no_store=True)
-def download(request,key):
-	proj=getproj(request.user.username,settings.USERS)
-	target=os.path.join(settings.REPOS,proj)
-	if key=='project':
-		r=Repo(target)
+def download(request):
+	loc=''
+	if request.GET['flag']=='project':
+		proj=getproj(request.user.username,settings.USERS)
+		loc=os.path.join(settings.REPOS,proj)
+		loc=loc+'/'
+		loc=loc+request.GET['target']
+	elif request.GET['flag']=='store':
+		loc=os.path.join(settings.STORE,request.user.username)
+		loc=loc+'/'
+		loc=loc+request.GET['target']
+	else:
+		proj=getproj(request.user.username,settings.USERS)
+		loc=os.path.join(settings.REPOS,proj)
+		r=Repo(loc)
 		f=open(settings.DOWNLOADS+proj+request.user.username+'.tar',"w")
 		r.archive(f)
 		f.close()
-		target=settings.DOWNLOADS+proj+request.user.username+'.tar'
-	else:
-		target=target+key
-	w=FileWrapper(file(target))
+		loc=settings.DOWNLOADS+proj+request.user.username+'.tar'
+	w=FileWrapper(file(loc))
 	response = HttpResponse(w,mimetype='text/plain')
-	n=target.split('/')
+	n=loc.split('/')
 	response['Content-Disposition'] = "attachment; filename=%s"%(n[-1])
 	return response

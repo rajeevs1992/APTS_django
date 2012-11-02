@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+<script language=javascript>
+	function hide(level,count)
+	{
+		if(level!='student')
+		{
+			var project=document.getElementById('project'+count);
+			project.style.visibility="hidden";
+		}
+		else
+		{
+			var project=document.getElementById('project'+count);
+			project.style.visibility='visible';
+		}
+	}
+</script>
+	<h2>Add new user</h2>
+	<div class=note>
+	Remember to create guides along with Team members.<br>
+	Please note that the guides are just created,they are to be associated with the projects <a href='/a/user/addguide'>here</a>
+	<br><br>
+
+	</div>
+	<form action=/a/user/add method=post>
+	{% csrf_token %}
+	<table border=4>
+		<tr>
+			<th>Username</th>
+			<th>Email</th>
+			<th>User type</th>
+			<th>Project</th>
+		</tr>
+		{% for j in 0123456789|make_list %}
+			<tr>
+				<td><input type=text name=uname{{ j }}></td>
+				<td><input type=text name=email{{ j }}></td>
+				<td><select name=group{{ j }} onChange=hide(this.value,{{ j }})>
+					<option value=student>Student</option>
+					<option value=guide>Guide</option>
+					<option value=evalueator>Evalueator</option>
+				</select></td>
+	
+				<td><select name=project{{ j }} id=project{{ j }}>
+					<option value=none>None</option>
+					{% for i in projList %}
+						<option value={{ i }}>{{ i }}</option>
+					{% endfor %}
+				</select></td>
+			</tr>
+		{% endfor %}
+	</table>
+	<input type=submit value='Add Users'>
+	</form>
+{% endblock %}
+

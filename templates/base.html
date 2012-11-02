@@ -1,0 +1,19 @@
+<html>
+<link type=text/css rel='stylesheet' href=/static/main.css>
+	<a href=/home class=logout>Home</a><br>
+	<a href=/logout class=logout>Logout</a>
+	<body vlink=blue>
+	
+	<div class=content>
+		<div class=error>
+			{{ message }}
+		</div>
+		{% block content %}
+		{% endblock %}
+	</div>
+	</body>
+	<div class=footer>
+		(c)Powered by Django.Designed and built by Rajeev S.....
+		<a href=/bugs>Report bugs or drop your valueable feedbacks</a>.......
+	</div>
+</html>
