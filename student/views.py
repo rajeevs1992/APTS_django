@@ -156,14 +156,13 @@ def rm(request):
 			head=os.path.join(settings.COMMITS,proj+'/head')
 		else:
 			target=os.path.join(settings.STORE,request.user.username+'/')
-			target=target+request.POST['destn']+'/'
 			head='/dev/null'
 		if request.POST.has_key('destn'):
 			dialogue='%s deleted %s at %s'
 			f=open(head,'a')
 			time=str(datetime.now())
 			for i in request.POST.getlist('destn'):
-				print target+i
+#				print target+i
 				try:
 					rmtree(target+i)
 				except OSError:
