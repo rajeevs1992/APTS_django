@@ -2,10 +2,13 @@ from django.http import HttpResponse,HttpResponseRedirect
 from django.template import RequestContext
 from django.views.decorators.cache import cache_control
 from django.shortcuts import render_to_response
+from django.utils.encoding import smart_str
+from django.core.servers.basehttp import FileWrapper
 import os
 from django.contrib.auth.decorators import login_required,user_passes_test
 from django.conf import settings
 from datetime import datetime
+from git import Repo
 
 def is_student(u):
 	l=u.groups.all()
@@ -162,7 +165,6 @@ def rm(request):
 			f=open(head,'a')
 			time=str(datetime.now())
 			for i in request.POST.getlist('destn'):
-#				print target+i
 				try:
 					rmtree(target+i)
 				except OSError:
@@ -208,3 +210,22 @@ def getlisting_files(uname,target):
 					t='/'+p+t
 				l.append(t)
 	return l
+@login_required
+@user_passes_test(lambda u: is_student(u),login_url='/logout')
+@cache_control(no_cache=True, must_revalidate=True,no_store=True)
+def download(request,key):
+	proj=getproj(request.user.username,settings.USERS)
+	target=os.path.join(settings.REPOS,proj)
+	if key=='project':
+		r=Repo(target)
+		f=open(settings.DOWNLOADS+proj+request.user.username+'.tar',"w")
+		r.archive(f)
+		f.close()
+		target=settings.DOWNLOADS+proj+request.user.username+'.tar'
+	else:
+		target=target+key
+	w=FileWrapper(file(target))
+	response = HttpResponse(w,mimetype='text/plain')
+	n=target.split('/')
+	response['Content-Disposition'] = "attachment; filename=%s"%(n[-1])
+	return response
