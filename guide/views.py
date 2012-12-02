@@ -97,4 +97,17 @@ def getActiveProjects():
 		if 'active' in file:
 			ret.append(i)
 	return ret
-
+	
+@login_required
+@user_passes_test(lambda u: is_guide(u),login_url='/logout')
+@cache_control(no_cache=True, must_revalidate=True,no_store=True)
+def branch(request):
+	if request.method=='GET':
+		if 'proj' and 'commit' not in request.GET:
+			return HttpResponseRedirect('/guide/selectproject?next=selcommit')
+		arg={}
+		arg['proj']=request.GET['proj']
+		return render_to_response('branch.html',arg,context_instance=RequestContext(request))
+	else:
+		from django.conf import settings
+		from git import Repo
