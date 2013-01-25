@@ -20,7 +20,7 @@ urlpatterns = patterns('',
 	(r'^a/user/add$','admin.views.adduser'),
 	(r'^a/project/add$','admin.views.addproj'),
 	(r'^a/user/addguide$','admin.views.addguide'),
-    (r'^admin/', include(admin.site.urls))
+        (r'^admin/', include(admin.site.urls))
 
 )
 if settings.DEBUG:

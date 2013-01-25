@@ -13,21 +13,6 @@ def is_guide(u):
         if i.name=='guide':
             return True
     return False
-
-
-@login_required
-@user_passes_test(lambda u: is_guide(u),login_url='/logout')
-@cache_control(no_cache=True, must_revalidate=True,no_store=True)
-def selectCommit(request):
-    if request.method=='GET':
-        if 'action' in request.GET:
-            request.session['action']='commit'
-            return render_to_response('selectCommit.html',context_instance=RequestContext(request))
-    else:
-        action=request.session['action']
-        del request.session['action']
-        return HttpResponseRedirect('/guide/'+action)
-
 @login_required
 @user_passes_test(lambda u: is_guide(u),login_url='/logout')
 @cache_control(no_cache=True, must_revalidate=True,no_store=True)
