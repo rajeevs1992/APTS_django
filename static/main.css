@@ -1,6 +1,6 @@
 		body
 		{
-			background-color:#96363D;
+			background-color:#11234a;
 			font-family:ubuntu;
 			font-size:20px;
 			color:#BBA5D2;
@@ -17,17 +17,17 @@
 		}
 		h1
 		{
-			color:#dfe123;
+			color:#fff;
 			text-align:center;
 		}
 		h2
 		{
-			color:#dfe123;
+			color:#fff;
 			text-align:left;
 		}
 		h1.login
 		{
-			color:#dfe123;
+			color:#fff;
 			text-align:left;
 		}
 		a.logout
@@ -73,7 +73,7 @@
 		}
 		div.note
 		{
-			color:#dfe123;
+			color:#fff;
 			font-size:15px;
 		}
 		div.footer

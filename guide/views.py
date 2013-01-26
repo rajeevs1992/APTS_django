@@ -6,7 +6,7 @@ from django.http import HttpResponse,HttpResponseRedirect
 from django.contrib.auth import authenticate,login,logout
 import os
 from datetime import datetime
-
+import re
 def is_guide(u):
     l=u.groups.all()
     for i in l:
@@ -83,26 +83,23 @@ def getActiveProjects():
 @cache_control(no_cache=True, must_revalidate=True,no_store=True)
 def selectcommit(request):
     if request.method=='GET':
-        if 'next' not in request.GET:
+        if 'nextAction' not in request.GET:
             return HttpResponseRedirect('/home?message=Invalid request')
         from django.conf import settings
         t=[]
         os.chdir(settings.REPOS+request.session['project'])
-        t=os.popen('git log --all --graph --oneline --decorate -n 50').read()
-        l=os.popen('git log --all --graph --oneline pretty=format:"%h" -n 50').read()
-        t=t.split('\n')
-        l=l.split('\n')
-        l2=[]
-        for i in l:
-            c=i.count('|')
-            if len(i)-c > 7:
-                l2.append(i)
-            else:
-                l2.append('')
-        tree=zip(t,l2)
+        tree=os.popen('git log --all --graph --oneline --decorate -n 50').read()
+        tree=tree.split('\n')
+	t=[]
+        for i in tree:
+		m=re.search('\w',i)
+		if m:
+			t.append("<input type='radio' value='"+i[m.start():].split(" ")[0]+"'>"+i[m.start():]+"<br/>");
+		else:
+			t.append(i);
         ret={}
         ret['tree']=t
-        ret['next']=request.GET['next']
+        ret['action']=request.GET['nextAction']
         return render_to_response('selcommit.html',ret)
     else:
         pass

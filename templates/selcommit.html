@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-    {% for i,j in tree %}
-        <a href={{ i }} <br>
-    {% endfor %}
+	<h1> {{ action }} </h1>
+	<form name="selectCommit" action={{ action }} method="post">
+	{%for i in tree %}
+		{% autoescape off %}
+			{{ i }}
+		{% endautoescape %}
+	{%endfor%}
+	<input type='submit' value={{action }}>
+	</form>
 {% endblock %}
