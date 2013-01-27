@@ -7,6 +7,8 @@ from django.contrib.auth import authenticate,login,logout
 import os
 from datetime import datetime
 import re
+from git import Repo
+from django.conf import settings
 def is_guide(u):
     l=u.groups.all()
     for i in l:
@@ -16,14 +18,36 @@ def is_guide(u):
 @login_required
 @user_passes_test(lambda u: is_guide(u),login_url='/logout')
 @cache_control(no_cache=True, must_revalidate=True,no_store=True)
+def switch(request):
+    if request.method=='GET':
+        ret={}
+        if 'message' in request.GET:
+            ret['message']=request.GET['message']
+        r=Repo(settings.REPOS+request.session['project'])
+        cur=r.active_branch.name
+        heads=r.heads
+        h=[]
+        for i in heads:
+            if i.name != cur:
+                h.append(i)
+        ret['cur']=cur
+        ret['h']=h
+        ret['project']=request.session['project']
+        return render_to_response('switch.html',ret,context_instance=RequestContext(request))
+    else:
+        r=Repo(settings.REPOS+request.session['project'])
+        r.git.checkout(request.POST['branch'])
+        return HttpResponseRedirect('/home/?message=Switched to branch %s'%(request.POST['branch']))
+            
+@login_required
+@user_passes_test(lambda u: is_guide(u),login_url='/logout')
+@cache_control(no_cache=True, must_revalidate=True,no_store=True)
 def commit(request):
     if request.method=='GET':
         arg={}
         arg['proj']=request.session['project']
         return render_to_response('commit.html',arg,context_instance=RequestContext(request))
     else:
-        from django.conf import settings
-        from git import Repo
         repo=os.path.join(settings.REPOS,request.POST['proj'])
         repo=Repo(repo)
         clean='nothing to commit (working directory clean)'
@@ -42,7 +66,6 @@ def commit(request):
             return HttpResponseRedirect('/home?message=Nothing to commit')
         return HttpResponseRedirect('/home?message=Commited Successfully')
 def notifyCommit(proj):
-    from django.conf import settings
     from mails import Commit
     from django.contrib.auth.models import User
     proj_conf=os.path.join(settings.USERS,proj)
@@ -67,7 +90,6 @@ def selectproject(request):
         return render_to_response("selectProject.html",ret,context_instance=RequestContext(request))
 
 def getActiveProjects():
-    from django.conf import settings
     listing=os.listdir(settings.REPOS)
     ret=[]
     for i in listing:
@@ -85,10 +107,9 @@ def selectcommit(request):
     if request.method=='GET':
         if 'nextAction' not in request.GET:
             return HttpResponseRedirect('/home?message=Invalid request')
-        from django.conf import settings
         t=[]
-        #os.chdir(settings.REPOS+request.session['project'])
-        os.chdir('/home/rajeevs/myfiles/autotest/autotest/')
+        os.chdir(settings.REPOS+request.session['project'])
+#        os.chdir('/home/rajeevs/myfiles/autotest/autotest/')
         tree=os.popen('git log --all --graph --oneline --decorate -n 50').read()
         tree=tree.split('\n')
         for i in tree:
@@ -114,10 +135,9 @@ def branch(request):
             return HttpResponseRedirect('/guide/selectcommit?nextAction=/guide/branch')
         arg={}
         arg['proj']=request.session['project']
+        arg['commit']=request.GET['commit']
         return render_to_response('branch.html',arg,context_instance=RequestContext(request))
     else:
-        from django.conf import settings
-        from git import Repo
         r=Repo(settings.REPOS+request.session['project'])
-
-
+        r.git.checkout(request.POST['commit'],b=request.POST['branch'])
+        return HttpResponseRedirect('/home/?message=Switched to branch %s'%(request.POST['branch']))

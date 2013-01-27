@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+	<h2>Branch {{ project }} at {{ commit }}</h2>
+    <form action=/guide/branch/ method=post>
+    {% csrf_token %}
+    Enter Branch name <input type=text name=branch>
+    <input type=hidden value={{ commit }} name=commit>
+    <input type=submit value=Branch>
+    </form>
+{% endblock %}    
