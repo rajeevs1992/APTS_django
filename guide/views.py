@@ -87,20 +87,20 @@ def selectcommit(request):
             return HttpResponseRedirect('/home?message=Invalid request')
         from django.conf import settings
         t=[]
-        os.chdir(settings.REPOS+request.session['project'])
+   #     os.chdir(settings.REPOS+request.session['project'])
+        os.chdir('/home/rajeevs/myfiles/autotest/autotest/')
         tree=os.popen('git log --all --graph --oneline --decorate -n 50').read()
         tree=tree.split('\n')
-	t=[]
         for i in tree:
-		m=re.search('\w',i)
-		if m:
-			t.append("<input type='radio' value='"+i[m.start():].split(" ")[0]+"'>"+i[m.start():]+"<br/>");
-		else:
-			t.append(i);
+           m=re.search('\w',i)
+           if m:
+                t.append("<input type='radio' value='"+i[m.start():].split(" ")[0]+"' onclick=form.submit()>"+i[m.start():]+"<br/>");
+        else:
+            t.append(i);
         ret={}
         ret['tree']=t
         ret['action']=request.GET['nextAction']
-        return render_to_response('selcommit.html',ret)
+        return render_to_response('selcommit.html',ret,context_instance=RequestContext(request))
     else:
         pass
 
@@ -110,7 +110,7 @@ def selectcommit(request):
 def branch(request):
     if request.method=='GET':
         if 'commit' not in request.GET:
-            return HttpResponseRedirect('/guide/selectcommit?next=/guide/branch')
+            return HttpResponseRedirect('/guide/selectcommit?nextAction=/guide/branch')
         arg={}
         arg['proj']=request.session['project']
         return render_to_response('branch.html',arg,context_instance=RequestContext(request))

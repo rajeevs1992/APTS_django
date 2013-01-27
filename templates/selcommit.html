@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-	<h1> {{ action }} </h1>
+	<h1> Select the commit </h1>
 	<form name="selectCommit" action={{ action }} method="post">
+    {% csrf_token %}
 	{%for i in tree %}
 		{% autoescape off %}
 			{{ i }}
 		{% endautoescape %}
 	{%endfor%}
-	<input type='submit' value={{action }}>
 	</form>
 {% endblock %}
