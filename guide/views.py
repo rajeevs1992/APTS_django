@@ -87,13 +87,15 @@ def selectcommit(request):
             return HttpResponseRedirect('/home?message=Invalid request')
         from django.conf import settings
         t=[]
-        os.chdir(settings.REPOS+request.session['project'])
+        #os.chdir(settings.REPOS+request.session['project'])
+        os.chdir('/home/rajeevs/myfiles/autotest/autotest/')
         tree=os.popen('git log --all --graph --oneline --decorate -n 50').read()
         tree=tree.split('\n')
         for i in tree:
            m=re.search('\w',i)
            if m:
-                t.append(i[:m.start()]+"<input type='radio' value='"+i[m.start():].split(" ")[0]+"' onclick=form.submit()>"+i[m.start():]+"<br/>");
+                t.append(i[:m.start()]+"<input type='radio' name=commit value='"+i[m.start():].split(" ")[0]+
+                "' onclick=form.submit()>"+i[m.start():]+"<br/>");
         else:
             t.append(i+"<br/>");
         ret={}
@@ -116,3 +118,6 @@ def branch(request):
     else:
         from django.conf import settings
         from git import Repo
+        r=Repo(settings.REPOS+request.session['project'])
+
+
