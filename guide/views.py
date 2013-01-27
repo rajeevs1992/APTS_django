@@ -109,7 +109,6 @@ def selectcommit(request):
             return HttpResponseRedirect('/home?message=Invalid request')
         t=[]
         os.chdir(settings.REPOS+request.session['project'])
-#        os.chdir('/home/rajeevs/myfiles/autotest/autotest/')
         tree=os.popen('git log --all --graph --oneline --decorate -n 50').read()
         tree=tree.split('\n')
         for i in tree:
@@ -141,3 +140,35 @@ def branch(request):
         r=Repo(settings.REPOS+request.session['project'])
         r.git.checkout(request.POST['commit'],b=request.POST['branch'])
         return HttpResponseRedirect('/home/?message=Switched to branch %s'%(request.POST['branch']))
+def zipdir(path, zip):
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            zip.write(os.path.join(root, file))
+def archive(target,source):
+	import zipfile
+	zip = zipfile.ZipFile(target, 'w')
+	zipdir(source, zip)
+	zip.close()
+@login_required
+@user_passes_test(lambda u: is_guide(u),login_url='/logout')
+@cache_control(no_cache=True, must_revalidate=True,no_store=True)
+def download(request):
+	from django.conf import settings
+	from django.core.servers.basehttp import FileWrapper
+	import mimetypes
+	if request.method=='GET':
+		if 'commit' not in request.GET:
+            		return HttpResponseRedirect('/home?message=Invalid request')
+		else:
+			ret={}
+			ret['commit']=request.GET['commit']
+		        os.chdir('/home/pauldc/SRC/autotest/')
+			cur=os.popen("git describe --contains --all HEAD").read();
+			os.popen("git checkout "+request.GET['commit']);
+			os.popen("git checkout "+cur);
+			zipTmp="/tmp/"+request.session['project'];
+        		archive(zipTmp,settings.REPOS+request.session['project']+'/'+request.session['project'])
+			response = HttpResponse(FileWrapper(open(zipTmp)),mimetype='application/zip')
+			response['Content-Disposition'] = "attachment; filename='"+request.session['project']+request.GET['commit']+"'"
+			response['Content-Length']=os.path.getsize(zipTmp)
+			return response
