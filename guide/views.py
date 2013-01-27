@@ -88,7 +88,6 @@ def selectcommit(request):
         from django.conf import settings
         t=[]
         os.chdir(settings.REPOS+request.session['project'])
-        os.chdir('/home/pauldc/SRC/autotest/')
         tree=os.popen('git log --all --graph --oneline --decorate -n 50').read()
         tree=tree.split('\n')
         for i in tree:
