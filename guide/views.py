@@ -162,7 +162,7 @@ def download(request):
 		else:
 			ret={}
 			ret['commit']=request.GET['commit']
-		        os.chdir('/home/pauldc/SRC/autotest/')
+        		os.chdir(settings.REPOS+request.session['project'])
 			cur=os.popen("git describe --contains --all HEAD").read();
 			os.popen("git checkout "+request.GET['commit']);
 			os.popen("git checkout "+cur);
