@@ -21,8 +21,8 @@ urlpatterns = patterns('',
 	(r'^a/user/add/$','admin.views.adduser'),
 	(r'^a/project/add/$','admin.views.addproj'),
 	(r'^a/user/addguide/$','admin.views.addguide'),
-	(r'^guide/Download$','guide.views.download'),
-	(r'^student/downloadVersion$','student.views.downloadVersion'),
+	(r'^guide/Download/$','guide.views.download'),
+	(r'^student/downloadVersion/$','student.views.downloadVersion'),
         (r'^admin/', include(admin.site.urls))
 
 )
