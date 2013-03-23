@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 	<h2>Add a new project</h2>
-	<form action=/a/project/add method=post>
+	<form action=/a/project/add/ method=post>
 	{% csrf_token %}
 	Project Name<input type=text name=pname class=vform><br><br>
 	<input type=submit value='Create project and move to Add Users Page >>>'>
