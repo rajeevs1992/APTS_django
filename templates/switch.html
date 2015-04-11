@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+	<h2>Switch {{ project }} to another branch</h2>
+    Current branch : {{ cur }}
+    <form action=/guide/switch/ method=post>
+    {% csrf_token %}
+        Select Branch:<br>
+        <input type=hidden name=cur value={{ cur }}>
+        {% for i in h %}
+            <input type=radio name=branch onclick=form.submit() value={{ i.name }}>{{ i.name }}<br>          
+        {% endfor %}
+    </form>
+{% endblock %}    

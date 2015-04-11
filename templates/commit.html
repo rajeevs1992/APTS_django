@@ -6,10 +6,13 @@
 	{% csrf_token %}
 	<table cellpadding=5px>
 	<tr>
-		<th>Enter commit message</th>
+		<td><h3>Enter commit message</h3></td>
 	</tr>
 	<tr>
-		<td><textarea rows=15 cols=50 name=commitMessage this.setFocus()></textarea></td>
+		<td>Project : {{ proj }}</td>
+	</tr>
+	<tr>
+		<td><textarea rows=15 cols=50 name=commitMessage ></textarea></td>
 	</tr>
 	<tr>
 		<td><input type=hidden value={{ proj }} name=proj></td>

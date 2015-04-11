@@ -240,3 +240,26 @@ def download(request):
 	n=loc.split('/')
 	response['Content-Disposition'] = "attachment; filename=%s"%(n[-1])
 	return response
+def zipdir(path, zip):
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            zip.write(os.path.join(root, file))
+def archive(target,source):
+	import zipfile
+	zip = zipfile.ZipFile(target, 'w')
+	zipdir(source, zip)
+	zip.close()
+@login_required
+@user_passes_test(lambda u: is_student(u),login_url='/logout')
+@cache_control(no_cache=True, must_revalidate=True,no_store=True)
+def downloadVersion(request):
+	from django.conf import settings
+	from django.core.servers.basehttp import FileWrapper
+	import mimetypes
+	proj=getproj(request.user.username,settings.USERS)
+	zipTmp="/tmp/"+proj;
+        archive(zipTmp,settings.REPOS+proj+'/'+proj)
+	response = HttpResponse(FileWrapper(open(zipTmp)),mimetype='application/zip')
+	response['Content-Disposition'] = "attachment; filename='"+proj+"'"
+	response['Content-Length']=os.path.getsize(zipTmp)
+	return response

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+	<h1> Select the commit </h1>
+	<form name="selectCommit" action={{ action }} method="get">
+	{%for i in tree %}
+		{% autoescape off %}
+			{{ i }}
+		{% endautoescape %}
+	{%endfor%}
+	</form>
+{% endblock %}
